@@ -26,4 +26,6 @@ config.local = pyodbc.connect(server='??.database.windows.net', user='??', passw
 ## Deploy 
 - python3 sql2git.py push git   
 
-## Voila
+# Notes
+
+- Tables are currently not supported
