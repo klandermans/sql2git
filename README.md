@@ -18,12 +18,12 @@ config.local = pyodbc.connect(server='??.database.windows.net', user='??', passw
 # usage
 
 ## pull code from dev & commit to GIT
-- python3 pygit.py pull [environment] 
+- python3 sql2git.py pull [environment] 
 - git add .
 - git commit .
 - git push
 
 ## Deploy 
-- python3 pygit.py push git   
+- python3 sql2git.py push git   
 
 ## Voila
