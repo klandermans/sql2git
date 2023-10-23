@@ -16,7 +16,7 @@ def export(type):
 
     if type == 'T':
         sql = """
-SELECT QUOTENAME(s.name) + '.' + QUOTENAME(t.name) , 
+SELECT QUOTENAME(t.name) , 
     'CREATE TABLE ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name) + CHAR(13) + CHAR(10) + '(' +
     STUFF((
         SELECT 
