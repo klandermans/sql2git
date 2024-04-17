@@ -4,11 +4,21 @@ import pymssql
 import _mssql
 import os
 
+# Establish a connection to the production database
 conn2 = production
 cursor = conn2.cursor()
 
 def getObject(type, name):
-    
+    """
+    Retrieves the definition of a database object (stored procedure, view, function, etc.).
+
+    Args:
+        type (str): The type of database object (e.g., 'P' for stored procedure, 'V' for view).
+        name (str): The name of the database object.
+
+    Returns:
+        tuple: A tuple containing the name and definition of the database object.
+    """
     sql = """SELECT 
                 name,  
                 SM.Definition 
@@ -20,18 +30,45 @@ def getObject(type, name):
     return cursor.fetchone()
 
 def getString(string):
+    """
+    Writes a string to a temporary SQL file and returns its content.
+
+    Args:
+        string (str): The string to be written to the file.
+
+    Returns:
+        str: The content of the temporary SQL file.
+    """
     f = open('/tmp/tmp.sql', "w")
     f.write(string)
     f.close()
     return getFile('/tmp/tmp.sql')
 
 def getFile(file):
+    """
+    Reads the content of a SQL file and returns it as a string.
+
+    Args:
+        file (str): The path to the SQL file.
+
+    Returns:
+        str: The content of the SQL file.
+    """
     f = open(file, "r")
     definition = f.read()
     f.close()
     return definition
 
 def deploy(type):
+    """
+    Deploys database objects of a specified type.
+
+    Args:
+        type (str): The type of database objects to deploy (e.g., 'P' for stored procedures, 'V' for views).
+
+    Returns:
+        None
+    """
     for file in os.scandir(type):
         definition = getFile(type+"/"+file.name)
         name = file.name.replace('.sql','')
@@ -39,9 +76,7 @@ def deploy(type):
         
         if obj == None:
             new = definition
-            # new = new.replace('CREATE ', 'CREATE FORCE ', 1)
             try:
-                # conn2.execute_non_query(new)
                 cursor.execute(new)
                 cursor.commit()
             except _mssql.MssqlDatabaseException as e:
@@ -50,8 +85,6 @@ def deploy(type):
                 print('skip')
 
         elif obj != None:
-        
-            # str(obj[1])
             old = str(obj[1])
             old = getString(old)
             new = definition
@@ -59,7 +92,6 @@ def deploy(type):
                 print('DEPLOYING DEPLOYING DEPLOYING DEPLOYING DEPLOYING ')
                 try:
                     new = new.replace('CREATE ', 'ALTER ', 1)
-                    # conn2.execute_non_query(new)
                     cursor.execute(new)
                     conn2.commit()
                 except _mssql.MssqlDatabaseException as e:
@@ -67,6 +99,7 @@ def deploy(type):
                 finally:
                     print('skip')
 
+# Deploy stored procedures, views, functions, and inline functions
 deploy('P')
 deploy('V')
 deploy('FN')
